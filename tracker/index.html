@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C++ Study Tracker</title>
+<style>
+/* Code only: all course content comes from course.json, sessions.csv and checkpoints.csv (see README.md). */
+:root {
+  --bg: #f5f7fa; --surface: #ffffff; --fg: #16202c; --muted: #5b6878; --line: #dde3ea; --field: #f8fafc;
+  --accent: #00599c; --accent-soft: #e3eef7; --on-accent: #ffffff;
+  --ok: #1f7a4d; --ok-soft: #e2f3ea; --warn: #9a5b00; --warn-soft: #fbf0dc; --bad: #b3261e; --bad-soft: #fbe4e2;
+  --t-learn: #00599c; --t-practice: #8a4fb8; --t-build: #1f7a4d; --t-review: #6b7787; --t-other: #9a5b00;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f151c; --surface: #161e27; --fg: #e6ecf2; --muted: #95a3b3; --line: #2a3542; --field: #111922;
+    --accent: #5fa8e0; --accent-soft: #16304a; --on-accent: #0f151c;
+    --ok: #5cc895; --ok-soft: #14301f; --warn: #e0a84a; --warn-soft: #33270f; --bad: #f2867d; --bad-soft: #3a1a18;
+    --t-learn: #5fa8e0; --t-practice: #c08ae8; --t-build: #5cc895; --t-review: #9aa7b6; --t-other: #e0a84a;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.5; }
+[hidden] { display: none !important; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 28px 16px 56px; display: flex; flex-direction: column; gap: 18px; }
+header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; }
+.titles { display: flex; flex-direction: column; gap: 4px; min-width: 0; max-width: 70ch; }
+.eyebrow { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+h1 { font-size: clamp(24px, 4vw, 32px); margin: 0; letter-spacing: -.01em; }
+h2 { font-size: 21px; margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); margin: 0; }
+
+.bar-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.btn { font: inherit; font-size: 14px; cursor: pointer; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--field); color: var(--fg); }
+.btn:hover:not([disabled]) { border-color: var(--accent); }
+.btn[disabled] { opacity: .45; cursor: default; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.btn.small { font-size: 13px; padding: 3px 9px; }
+.btn:focus-visible, .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sync { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.sync[data-state="saved"] .dot { background: var(--ok); }
+.sync[data-state="saving"] .dot { background: var(--warn); }
+.sync[data-state="error"] .dot { background: var(--bad); }
+.sync[data-state="error"] { color: var(--bad); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+.connect { display: flex; flex-direction: column; gap: 10px; max-width: 70ch; }
+.connect p { margin: 0; }
+.warnings { background: var(--warn-soft); border: 1px solid transparent; border-radius: 10px; padding: 12px 16px; font-size: 14px; }
+.warnings b { color: var(--warn); }
+.warnings ul { margin: 6px 0 0; padding-left: 20px; }
+.warnings li { font-family: var(--mono); font-size: 13px; }
+
+.summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.stat { background: var(--surface); padding: 14px 16px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+.value { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.value small { font-size: 14px; color: var(--muted); font-weight: 500; }
+.note { font-size: 13px; color: var(--muted); }
+.note.good { color: var(--ok); } .note.behind { color: var(--warn); }
+@media (max-width: 760px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.strip-wrap { overflow-x: auto; padding-bottom: 4px; }
+.strip { display: flex; gap: 6px; min-width: max-content; }
+.chip { font: inherit; cursor: pointer; width: 46px; padding: 6px 0 7px; border-radius: 8px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.chip .n { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.chip .fill { width: 28px; height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.chip .fill span { display: block; height: 100%; background: var(--accent); }
+.chip.full .fill span { background: var(--ok); }
+.chip.now { border-color: var(--accent); color: var(--accent); }
+.chip[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.chip[aria-current="true"] .fill { background: color-mix(in srgb, var(--on-accent) 35%, transparent); }
+.chip[aria-current="true"] .fill span { background: var(--on-accent); }
+
+.week { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.week-head { padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 20px; align-items: start; border-bottom: 1px solid var(--line); }
+.week-title { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.dates { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.dates b { color: var(--accent); font-weight: 500; }
+.why { margin: 2px 0 0; max-width: 72ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 24px; font-size: 14px; margin-top: 4px; }
+.meta .k { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; margin-right: 4px; }
+.mono { font-family: var(--mono); font-size: 13px; }
+.nav { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.checkpoints { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; }
+.checkpoint { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 8px; background: var(--field); border: 1px solid var(--line); font-size: 14px; }
+.checkpoint input { width: 17px; height: 17px; margin: 3px 0 0; accent-color: var(--ok); flex: none; }
+.checkpoint.passed { background: var(--ok-soft); border-color: transparent; }
+.checkpoint .when { color: var(--muted); }
+.mix { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; }
+.mixbar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--line); }
+.mixbar span { height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.legend .total { margin-left: auto; color: var(--fg); font-weight: 600; }
+
+.row { display: grid; grid-template-columns: 132px 92px 112px minmax(0, 1.35fr) 72px 112px minmax(0, 1.15fr); gap: 12px; padding: 12px 16px; align-items: start; border-top: 1px solid var(--line); }
+.row.head { border-top: 0; background: var(--field); padding-block: 9px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+.row.today { box-shadow: inset 3px 0 0 var(--accent); }
+.row[data-status="done"] { background: color-mix(in srgb, var(--ok-soft) 45%, var(--surface)); }
+.row[data-status="skipped"] textarea { opacity: .6; }
+.day { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.day b { font-weight: 600; }
+.day .extra { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); }
+.day .today-tag { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); }
+.cell { min-width: 0; }
+.cell-label { display: none; }
+select, input, textarea { width: 100%; font: inherit; font-size: 14px; color: var(--fg); background: var(--field); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+input[type="number"], input[type="time"], input[type="date"] { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+textarea { resize: vertical; min-height: 36px; line-height: 1.4; }
+select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+input:disabled { opacity: 1; color: var(--fg); background: transparent; border-color: transparent; padding-inline: 0; }
+input.date { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+input.invalid { border-color: var(--bad); background: var(--bad-soft); }
+.ro { padding-top: 1px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ro.type-text { font-weight: 600; }
+.ro.status-text[data-v="done"] { color: var(--ok); font-weight: 600; }
+.ro.status-text[data-v="moved"] { color: var(--warn); font-weight: 600; }
+.ro.status-text[data-v="skipped"] { color: var(--bad); }
+select.type { font-weight: 600; }
+select.type[data-v="Learn"] { color: var(--t-learn); } select.type[data-v="Practice"] { color: var(--t-practice); }
+select.type[data-v="Build"] { color: var(--t-build); } select.type[data-v="Review"] { color: var(--t-review); }
+select.status[data-v="done"] { color: var(--ok); font-weight: 600; }
+select.status[data-v="moved"] { color: var(--warn); font-weight: 600; }
+select.status[data-v="skipped"] { color: var(--bad); }
+.add-row { padding: 12px 16px; border-top: 1px solid var(--line); display: flex; justify-content: flex-start; }
+.foot { font-size: 13px; color: var(--muted); max-width: 75ch; margin: 0; }
+
+@media (max-width: 900px) {
+  .row.head { display: none; }
+  .row { grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px; }
+  .day, .plan, .did { grid-column: 1 / -1; }
+  .cell-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+}
+@media (max-width: 560px) { .week-head { grid-template-columns: 1fr; } .nav { justify-content: flex-start; } .legend .total { margin-left: 0; } .bar-actions { align-items: flex-start; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="titles">
+      <span class="eyebrow" id="eyebrow">// study tracker</span>
+      <h1 id="title">C++ Study Tracker</h1>
+      <p class="sub" id="desc"></p>
+    </div>
+    <div class="bar-actions">
+      <button class="btn primary" id="connect" type="button" hidden>Connect tracker folder</button>
+      <div class="sync" id="sync" data-state="idle" role="status"><span class="dot"></span><span id="sync-text">Loading…</span></div>
+    </div>
+  </header>
+
+  <section class="panel connect" id="connect-panel" hidden>
+    <h2>Open your tracker folder</h2>
+    <p>Click <b>Connect tracker folder</b> and choose the <span class="mono">tracker</span> folder in your copy of the repo. Chrome will ask whether this page may edit files there. After that, every change saves to the CSV files automatically.</p>
+    <p class="note">Saving updates the files on your computer. Commit and push to update GitHub.</p>
+  </section>
+
+  <section class="panel connect" id="unsupported-panel" hidden>
+    <h2>This browser can’t edit the tracker</h2>
+    <p>Editing needs Chrome or Edge on a computer. You can still read the tracker: in a terminal, run <span class="mono">python3 -m http.server</span> inside the <span class="mono">tracker</span> folder and open <span class="mono">http://localhost:8000</span>.</p>
+  </section>
+
+  <div class="warnings" id="warnings" hidden><b>Some rows in the data files need fixing</b><ul id="warn-list"></ul></div>
+
+  <div id="app" hidden>
+    <section class="summary" aria-label="Progress summary">
+      <div class="stat"><span class="label">This week</span><span class="value" id="s-week">0</span><span class="note" id="s-week-note"></span></div>
+      <div class="stat"><span class="label">Pace</span><span class="value" id="s-pace">—</span><span class="note" id="s-pace-note"></span></div>
+      <div class="stat"><span class="label">Weeks on plan</span><span class="value" id="s-weeks">0</span><span class="note" id="s-weeks-note"></span></div>
+      <div class="stat"><span class="label">Checkpoints</span><span class="value" id="s-cp">0</span><span class="note">milestones passed</span></div>
+    </section>
+
+    <div class="strip-wrap" style="margin-top:18px"><div class="strip" id="strip" role="toolbar" aria-label="Weeks"></div></div>
+
+    <section class="week" style="margin-top:18px" aria-live="polite">
+      <div class="week-head">
+        <div class="week-title">
+          <span class="dates"><b id="w-title"></b> · <span id="w-dates"></span></span>
+          <h2 id="w-goal"></h2>
+          <p class="why" id="w-why"></p>
+          <div class="meta">
+            <span id="w-read-wrap"><span class="k">Readings</span> <span class="mono" id="w-read"></span></span>
+            <span id="w-ms-wrap"><span class="k">Milestone</span> <span id="w-ms"></span></span>
+          </div>
+        </div>
+        <div class="nav">
+          <button class="btn" id="prev" type="button">← Prev</button>
+          <button class="btn" id="today" type="button">This week</button>
+          <button class="btn" id="next" type="button">Next →</button>
+        </div>
+        <div class="checkpoints" id="checkpoints"></div>
+        <div class="mix">
+          <div class="mixbar" id="mixbar" aria-hidden="true"></div>
+          <div class="legend" id="legend"></div>
+        </div>
+      </div>
+      <div class="row head" aria-hidden="true">
+        <span>Day</span><span>Time</span><span>Type</span><span>Plan</span><span>Hours</span><span>Status</span><span>What I did</span>
+      </div>
+      <div id="rows"></div>
+      <div class="add-row" id="add-wrap"><button class="btn small" id="add" type="button">+ Add an extra session</button></div>
+    </section>
+
+    <p class="foot" style="margin-top:18px">Hours fill in from the plan when you mark a session done; change them if you studied longer or shorter. “Moved” means you did it on another day. Extra sessions you add count towards your hours but not towards the plan.</p>
+  </div>
+</div>
+
+<script>
+"use strict";
+// ---------- constants ----------
+const SESSION_COLS = ["id", "week", "date", "planned_hours", "type", "plan", "time", "hours", "status", "did"];
+const CHECK_COLS = ["id", "topic", "checkpoint", "passed", "passed_on"];
+const STATUSES = [["planned", "Planned"], ["done", "Done"], ["moved", "Moved"], ["skipped", "Skipped"]];
+const STATUS_SET = new Set(STATUSES.map(s => s[0]));
+const SUPPORTED_COURSE_VERSION = 1;
+const SAVE_DELAY = 1200;
+const $ = id => document.getElementById(id);
+
+// ---------- CSV ----------
+function parseCSV(text) {
+  text = text.replace(/^﻿/, "");
+  const rows = []; let row = [], f = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; }
+      else f += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { row.push(f); f = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(f); rows.push(row); row = []; f = "";
+    } else f += c;
+  }
+  if (f !== "" || row.length) { row.push(f); rows.push(row); }
+  const nonEmpty = rows.filter(r => !(r.length === 1 && r[0] === ""));
+  if (!nonEmpty.length) return { header: [], records: [] };
+  const header = nonEmpty[0].map(h => h.trim());
+  const records = nonEmpty.slice(1).map((r, i) => {
+    const o = {}; header.forEach((h, j) => { o[h] = r[j] ?? ""; });
+    Object.defineProperty(o, "__line", { value: i + 2, enumerable: false, writable: true });
+    return o;
+  });
+  return { header, records };
+}
+function toCSV(header, records) {
+  const esc = v => { v = v == null ? "" : String(v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  return [header.map(esc).join(",")].concat(records.map(r => header.map(h => esc(r[h])).join(","))).join("\n") + "\n";
+}
+function withCols(header, required) {
+  const h = header.slice(); for (const c of required) if (!h.includes(c)) h.push(c); return h;
+}
+
+// ---------- dates (DD/MM/YYYY) ----------
+const pad = n => String(n).padStart(2, "0");
+function parseUK(s) {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(s).trim()); if (!m) return null;
+  const d = new Date(+m[3], +m[2] - 1, +m[1]);
+  return d.getDate() === +m[1] && d.getMonth() === +m[2] - 1 ? d : null;
+}
+const toUK = d => pad(d.getDate()) + "/" + pad(d.getMonth() + 1) + "/" + d.getFullYear();
+const today0 = () => { const t = new Date(); t.setHours(0, 0, 0, 0); return t; };
+const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const r1 = n => Math.round(n * 10) / 10;
+const num = v => { const n = parseFloat(v); return isFinite(n) && n >= 0 ? n : 0; };
+
+// ---------- state ----------
+const data = { course: null, sessions: { header: SESSION_COLS.slice(), records: [] }, checks: { header: CHECK_COLS.slice(), records: [] } };
+let mode = "none";         // "edit" | "read" | "none"
+let dir = null;            // FileSystemDirectoryHandle in edit mode
+const lastMod = { "sessions.csv": 0, "checkpoints.csv": 0 };
+const pendingPatches = { "sessions.csv": new Map(), "checkpoints.csv": new Map() }; // id -> {field: value} | {__new: record} | {__delete: true}
+let saveTimer = null, saving = Promise.resolve();
+let view = null;
+
+const setSync = (state, text) => { $("sync").dataset.state = state; $("sync-text").textContent = text; };
+
+// ---------- derived ----------
+function weeksList() {
+  const set = new Set();
+  for (const r of data.sessions.records) { const w = parseInt(r.week, 10); if (w > 0) set.add(w); }
+  for (const w of (data.course?.weeks || [])) if (w.week > 0) set.add(w.week);
+  return [...set].sort((a, b) => a - b);
+}
+const brief = w => (data.course?.weeks || []).find(x => x.week === w) || null;
+function sessionsOf(w) {
+  return data.sessions.records.filter(r => parseInt(r.week, 10) === w).sort((a, b) => {
+    const da = parseUK(a.date), db = parseUK(b.date);
+    return ((da ? da.getTime() : 0) - (db ? db.getTime() : 0)) || String(a.id).localeCompare(String(b.id));
+  });
+}
+// hours only count once the session is done or moved; planned and skipped sessions count as 0
+const actualHours = r => r.status === "done" || r.status === "moved" ? num(r.hours) : 0;
+const plannedHours = r => num(r.planned_hours);
+function weekRange(w) {
+  const ds = sessionsOf(w).map(r => parseUK(r.date)).filter(Boolean);
+  if (!ds.length) return null;
+  return { from: new Date(Math.min(...ds)), to: new Date(Math.max(...ds)) };
+}
+function currentWeek() {
+  const t = today0().getTime(), list = weeksList();
+  if (!list.length) return 1;
+  for (const w of list) { const r = weekRange(w); if (r && t <= r.to.getTime()) return w; }
+  return list[list.length - 1];
+}
+function milestoneWeeks(id) {
+  return (data.course?.weeks || []).filter(w => (w.milestones || []).includes(id)).map(w => w.week).sort((a, b) => a - b);
+}
+const check = id => data.checks.records.find(c => c.id === id);
+const isPassed = c => /^(yes|true|y|1)$/i.test(String(c?.passed || "").trim());
+
+// ---------- validation ----------
+function validate() {
+  const warn = [];
+  const c = data.course;
+  if (c && c.version !== SUPPORTED_COURSE_VERSION) warn.push(`course.json: version ${c.version} is not ${SUPPORTED_COURSE_VERSION}; the page may show it incorrectly`);
+  for (const col of ["id", "week", "date", "planned_hours", "status"]) if (!data.sessions.header.includes(col)) warn.push(`sessions.csv: missing column "${col}"`);
+  const ids = new Set();
+  for (const r of data.sessions.records) {
+    const L = "sessions.csv line " + (r.__line ?? "?");
+    if (!r.id) warn.push(`${L}: no id`); else if (ids.has(r.id)) warn.push(`${L}: duplicate id "${r.id}"`); else ids.add(r.id);
+    if (!(parseInt(r.week, 10) > 0)) warn.push(`${L}: week "${r.week}" is not a positive number`);
+    if (!parseUK(r.date)) warn.push(`${L}: date "${r.date}" is not DD/MM/YYYY`);
+    if (r.status && !STATUS_SET.has(r.status)) warn.push(`${L}: unknown status "${r.status}"`);
+    if (r.planned_hours !== "" && !(parseFloat(r.planned_hours) >= 0)) warn.push(`${L}: planned_hours "${r.planned_hours}" is not a number`);
+    if (r.hours !== "" && r.hours != null && !(parseFloat(r.hours) >= 0)) warn.push(`${L}: hours "${r.hours}" is not a number`);
+    if (c && r.type && !(c.types || []).includes(r.type)) warn.push(`${L}: type "${r.type}" is not listed in course.json`);
+  }
+  const cids = new Set(data.checks.records.map(x => x.id));
+  for (const w of (c?.weeks || [])) for (const m of (w.milestones || [])) if (!cids.has(m)) warn.push(`course.json week ${w.week}: milestone "${m}" is not in checkpoints.csv`);
+  for (const w of weeksList()) if (c && !brief(w)) warn.push(`week ${w} has sessions but no entry in course.json`);
+  $("warn-list").textContent = "";
+  warn.slice(0, 30).forEach(t => { const li = document.createElement("li"); li.textContent = t; $("warn-list").append(li); });
+  if (warn.length > 30) { const li = document.createElement("li"); li.textContent = `…and ${warn.length - 30} more`; $("warn-list").append(li); }
+  $("warnings").hidden = !warn.length;
+}
+
+// ---------- DOM helpers ----------
+function el(tag, attrs = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") n.className = v; else if (k === "text") n.textContent = v; else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const k of kids) if (k != null) n.append(k);
+  return n;
+}
+const cellWrap = (cls, label, ctrl) => el("div", { class: "cell " + cls }, el("span", { class: "cell-label", text: label }), ctrl);
+const typeVar = t => ({ Learn: "--t-learn", Practice: "--t-practice", Build: "--t-build", Review: "--t-review" })[t] || "--t-other";
+const fmtShort = d => d.getDate() + " " + d.toLocaleDateString("en-GB", { month: "short" });
+
+// ---------- rendering ----------
+function renderHeader() {
+  const c = data.course || {};
+  $("title").textContent = c.title || "Study Tracker";
+  document.title = c.title || "Study Tracker";
+  $("desc").textContent = c.description || "";
+  $("eyebrow").textContent = mode === "edit" ? "// editing local files" : "// read-only view";
+}
+function renderStrip() {
+  const strip = $("strip"); strip.textContent = "";
+  const now = currentWeek();
+  for (const w of weeksList()) {
+    const rs = sessionsOf(w), a = rs.reduce((s, r) => s + actualHours(r), 0), p = rs.reduce((s, r) => s + plannedHours(r), 0);
+    const b = el("button", { type: "button", class: "chip" + (p > 0 && a >= p ? " full" : "") + (w === now ? " now" : ""), "aria-current": w === view ? "true" : "false",
+      title: "Week " + w + (brief(w)?.goal ? ": " + brief(w).goal : "") + " (" + r1(a) + " of " + r1(p) + " h)", "aria-label": "Week " + w },
+      el("span", { class: "n", text: "W" + w }), el("span", { class: "fill" }, el("span")));
+    b.querySelector(".fill span").style.width = (p > 0 ? Math.min(100, a / p * 100) : (a > 0 ? 100 : 0)) + "%";
+    b.addEventListener("click", () => showWeek(w));
+    strip.append(b);
+  }
+}
+function renderSummary() {
+  const t = today0().getTime(), now = currentWeek();
+  const cur = sessionsOf(now);
+  const wa = cur.reduce((s, r) => s + actualHours(r), 0), wp = cur.reduce((s, r) => s + plannedHours(r), 0);
+  $("s-week").innerHTML = ""; $("s-week").append(String(r1(wa)) + " ", el("small", { text: "/ " + r1(wp) + " h" }));
+  $("s-week-note").textContent = "Week " + now;
+  // pace: done hours vs planned hours of every session dated today or earlier (today's session is due from the start of the day)
+  let actual = 0, due = 0;
+  for (const r of data.sessions.records) {
+    actual += actualHours(r);
+    const d = parseUK(r.date); if (!d) continue;
+    if (d.getTime() <= t) due += plannedHours(r);
+  }
+  const diff = r1(actual - due), pn = $("s-pace-note"), pv = $("s-pace");
+  pv.textContent = "";
+  if (due === 0 && actual === 0) { pv.textContent = "—"; pn.textContent = "Starts with your first session"; pn.className = "note"; }
+  else if (diff >= 0) { pv.append((diff > 0 ? "+" + diff : "0") + " ", el("small", { text: "h" })); pn.textContent = diff > 0 ? "Ahead of plan" : "On pace"; pn.className = "note good"; }
+  else { pv.append(diff + " ", el("small", { text: "h" })); pn.textContent = "Behind plan"; pn.className = "note behind"; }
+  let done = 0, hit = 0;
+  for (const w of weeksList()) {
+    const r = weekRange(w); if (!r || r.to.getTime() >= t) continue;
+    const rs = sessionsOf(w), p = rs.reduce((s, x) => s + plannedHours(x), 0); if (p === 0) continue;
+    done++; if (rs.reduce((s, x) => s + actualHours(x), 0) >= p) hit++;
+  }
+  $("s-weeks").textContent = ""; $("s-weeks").append(String(hit) + " ", el("small", { text: "/ " + done }));
+  $("s-weeks-note").textContent = done ? "finished weeks met their planned hours" : "No finished weeks yet";
+  const cps = data.checks.records.filter(isPassed).length;
+  $("s-cp").textContent = ""; $("s-cp").append(String(cps) + " ", el("small", { text: "/ " + data.checks.records.length }));
+}
+function renderMix() {
+  const rs = sessionsOf(view), types = new Set([...(data.course?.types || []), ...rs.map(r => r.type).filter(Boolean)]);
+  const a = {}, p = {}; types.forEach(t => { a[t] = 0; p[t] = 0; });
+  for (const r of rs) if (r.type) { a[r.type] += actualHours(r); p[r.type] += plannedHours(r); }
+  const total = Object.values(a).reduce((s, x) => s + x, 0), planned = Object.values(p).reduce((s, x) => s + x, 0);
+  const denom = Math.max(planned, total, 1);
+  const bar = $("mixbar"); bar.textContent = "";
+  types.forEach(t => { if (a[t] > 0) { const s = el("span"); s.style.width = (a[t] / denom * 100) + "%"; s.style.background = "var(" + typeVar(t) + ")"; bar.append(s); } });
+  const lg = $("legend"); lg.textContent = "";
+  types.forEach(t => { if (a[t] > 0 || p[t] > 0) { const i = el("i"); i.style.background = "var(" + typeVar(t) + ")"; lg.append(el("span", {}, i, t + " " + r1(a[t]) + " / " + r1(p[t]) + " h")); } });
+  lg.append(el("span", { class: "total", text: r1(total) + " / " + r1(planned) + " h this week" }));
+}
+function renderCheckpoints() {
+  const box = $("checkpoints"); box.textContent = "";
+  const b = brief(view), ms = b?.milestones || [];
+  for (const id of ms) {
+    const c = check(id); if (!c) continue;
+    const wks = milestoneWeeks(id), last = wks[wks.length - 1];
+    const passed = isPassed(c);
+    const cb = el("input", { type: "checkbox", id: "cp-" + id, disabled: mode !== "edit" });
+    cb.checked = passed;
+    cb.addEventListener("change", () => {
+      patch("checkpoints.csv", id, { passed: cb.checked ? "yes" : "", passed_on: cb.checked ? toUK(today0()) : "" });
+      renderCheckpoints(); renderSummary();
+    });
+    const txt = el("span", {}, el("b", { text: "Checkpoint: " }), c.checkpoint || "");
+    if (view < last) txt.append(el("span", { class: "when", text: " (aim: by week " + last + ")" }));
+    if (passed && c.passed_on) txt.append(el("span", { class: "when", text: " · passed " + c.passed_on }));
+    box.append(el("label", { class: "checkpoint" + (passed ? " passed" : ""), for: "cp-" + id }, cb, txt));
+  }
+}
+function showWeek(w) {
+  const list = weeksList(); if (!list.length) return;
+  if (!list.includes(w)) w = list.reduce((best, x) => Math.abs(x - w) < Math.abs(best - w) ? x : best, list[0]);
+  view = w;
+  const b = brief(w), rng = weekRange(w);
+  $("w-title").textContent = "Week " + w;
+  $("w-dates").textContent = rng ? toUK(rng.from) + " – " + toUK(rng.to) : "no sessions yet";
+  $("w-goal").textContent = b?.goal || "";
+  $("w-why").textContent = b?.why || ""; $("w-why").hidden = !b?.why;
+  $("w-read").textContent = b?.readings || ""; $("w-read-wrap").hidden = !b?.readings;
+  const topics = (b?.milestones || []).map(id => check(id)?.topic).filter(Boolean);
+  $("w-ms").textContent = topics.join(" · "); $("w-ms-wrap").hidden = !topics.length;
+  const i = list.indexOf(w);
+  $("prev").disabled = i <= 0; $("next").disabled = i >= list.length - 1;
+  $("add-wrap").hidden = mode !== "edit";
+  renderRows(); renderCheckpoints(); renderMix(); renderStrip(); renderSummary();
+}
+function renderRows() {
+  const rows = $("rows"); rows.textContent = "";
+  const t = today0().getTime(), ro = mode !== "edit";
+  const types = data.course?.types || [];
+  for (const r of sessionsOf(view)) {
+    const d = parseUK(r.date), isToday = d && d.getTime() === t, extra = plannedHours(r) === 0;
+    const row = el("div", { class: "row" + (isToday ? " today" : ""), "data-status": r.status || "planned", "data-id": r.id });
+    const day = el("div", { class: "day" },
+      el("b", { text: (d ? WD[d.getDay()] + " " + fmtShort(d) : "No date") + (extra ? "" : " · " + r1(plannedHours(r)) + " h") }));
+    if (isToday) day.append(el("span", { class: "today-tag", text: "Today" }));
+    if (extra) day.append(el("span", { class: "extra", text: "Extra session" }));
+    if (ro) {
+      // Read-only: plain text, so nothing is clipped and empty fields stay empty.
+      const t = (cls, text) => el("div", { class: "ro " + cls, text: text || "" });
+      const statusLabel = (STATUSES.find(s => s[0] === r.status) || [0, r.status || "Planned"])[1];
+      row.append(day, cellWrap("", "Time", t("mono", r.time)), cellWrap("", "Type", t("type-text", r.type)),
+        cellWrap("plan", "Plan", t("", r.plan)), cellWrap("", "Hours", t("mono", r.hours)),
+        cellWrap("", "Status", t("status-text", statusLabel)), cellWrap("did", "What I did", t("", r.did)));
+      row.querySelector(".type-text").style.color = "var(" + typeVar(r.type) + ")";
+      row.querySelector(".status-text").dataset.v = r.status || "planned";
+      rows.append(row);
+      continue;
+    }
+    const date = el("input", { type: "text", class: "date", inputmode: "numeric", placeholder: "DD/MM/YYYY", "aria-label": "Date (DD/MM/YYYY)", value: d ? toUK(d) : (r.date || "") });
+    day.append(date);
+    const time = el("input", { type: "time", "aria-label": "Start time", value: r.time || "" });
+    const type = el("select", { class: "type", "aria-label": "Session type" });
+    const opts = types.includes(r.type) || !r.type ? types : types.concat([r.type]);
+    opts.forEach(v => type.append(el("option", { value: v, text: v })));
+    type.value = r.type || types[0] || ""; type.dataset.v = type.value;
+    const plan = el("textarea", { rows: "2", "aria-label": "Plan" }); plan.value = r.plan || "";
+    const hours = el("input", { type: "number", min: "0", step: "0.25", inputmode: "decimal", "aria-label": "Hours studied", placeholder: extra ? "0" : String(plannedHours(r)), value: r.hours || "" });
+    const status = el("select", { class: "status", "aria-label": "Status" });
+    STATUSES.forEach(([v, l]) => status.append(el("option", { value: v, text: l })));
+    if (r.status && !STATUS_SET.has(r.status)) status.append(el("option", { value: r.status, text: r.status }));
+    status.value = r.status || "planned"; status.dataset.v = status.value;
+    const did = el("textarea", { rows: "2", placeholder: "Where you stopped, what was tricky…", "aria-label": "What I did" }); did.value = r.did || "";
+    const didCell = cellWrap("did", "What I did", did);
+    if (extra && !ro) {
+      const rm = el("button", { class: "btn small", type: "button", text: "Remove extra session", style: "margin-top:6px" });
+      rm.addEventListener("click", () => { patch("sessions.csv", r.id, { __delete: true }); showWeek(view); });
+      didCell.append(rm);
+    }
+    row.append(day, cellWrap("", "Time", time), cellWrap("", "Type", type), cellWrap("plan", "Plan", plan),
+      cellWrap("", "Hours", hours), cellWrap("", "Status", status), didCell);
+    rows.append(row);
+    const id = r.id;
+    date.addEventListener("input", () => date.classList.toggle("invalid", date.value.length >= 10 && !parseUK(date.value)));
+    date.addEventListener("change", () => {
+      const nd = parseUK(date.value);
+      if (!nd) { date.classList.add("invalid"); date.title = "Use DD/MM/YYYY, e.g. 02/11/2026"; return; }
+      date.classList.remove("invalid"); patch("sessions.csv", id, { date: toUK(nd) }); showWeek(view);
+    });
+    time.addEventListener("change", () => patch("sessions.csv", id, { time: time.value }));
+    type.addEventListener("change", () => { type.dataset.v = type.value; patch("sessions.csv", id, { type: type.value }); renderMix(); });
+    status.addEventListener("change", () => {
+      const p = { status: status.value };
+      if (status.value === "done" && !(num(hours.value) > 0) && plannedHours(r) > 0) { p.hours = String(plannedHours(r)); hours.value = p.hours; }
+      status.dataset.v = status.value; row.dataset.status = status.value;
+      patch("sessions.csv", id, p); renderMix(); renderStrip(); renderSummary();
+    });
+    hours.addEventListener("input", () => { patch("sessions.csv", id, { hours: hours.value === "" ? "" : String(num(hours.value)) }); renderMix(); renderStrip(); renderSummary(); });
+    plan.addEventListener("input", () => patch("sessions.csv", id, { plan: plan.value }));
+    did.addEventListener("input", () => patch("sessions.csv", id, { did: did.value }));
+  }
+}
+function addExtra() {
+  const ids = data.sessions.records.map(r => /^s(\d+)$/.exec(r.id)).filter(Boolean).map(m => +m[1]);
+  const next = "s" + String((ids.length ? Math.max(...ids) : 0) + 1).padStart(3, "0");
+  const rng = weekRange(view), t = today0();
+  const d = rng && t >= rng.from && t <= rng.to ? t : (rng ? rng.to : t);
+  const rec = {}; data.sessions.header.forEach(h => { rec[h] = ""; });
+  Object.assign(rec, { id: next, week: String(view), date: toUK(d), planned_hours: "0", type: (data.course?.types || ["Learn"])[0], plan: "", status: "done" });
+  patch("sessions.csv", next, { __new: rec });
+  showWeek(view);
+}
+
+// ---------- editing and saving ----------
+function applyPatch(file, store, id, p) {
+  const recs = store.records;
+  if (p.__delete) { const i = recs.findIndex(r => r.id === id); if (i >= 0) recs.splice(i, 1); return; }
+  if (p.__new) { if (!recs.some(r => r.id === id)) recs.push(Object.assign({}, p.__new)); const rest = Object.assign({}, p); delete rest.__new; if (Object.keys(rest).length) applyPatch(file, store, id, rest); return; }
+  const r = recs.find(x => x.id === id); if (!r) return;
+  for (const [k, v] of Object.entries(p)) { if (!store.header.includes(k)) store.header.push(k); r[k] = v; }
+}
+function patch(file, id, p) {
+  if (mode !== "edit") return;
+  const store = file === "sessions.csv" ? data.sessions : data.checks;
+  applyPatch(file, store, id, p);
+  const m = pendingPatches[file], prev = m.get(id) || {};
+  if (p.__delete) m.set(id, { __delete: true });
+  else m.set(id, Object.assign(prev, p));
+  setSync("saving", "Unsaved changes…");
+  clearTimeout(saveTimer); saveTimer = setTimeout(flush, SAVE_DELAY);
+}
+async function readFile(name) {
+  const fh = await dir.getFileHandle(name);
+  const f = await fh.getFile();
+  return { fh, file: f, text: await f.text() };
+}
+async function writeFile(name, text) {
+  const fh = await dir.getFileHandle(name, { create: true });
+  const w = await fh.createWritable(); await w.write(text); await w.close();
+  lastMod[name] = (await fh.getFile()).lastModified;
+}
+function flush() {
+  clearTimeout(saveTimer);
+  saving = saving.then(doSave).catch(e => { console.error(e); setSync("error", "Couldn’t save: " + (e && e.message || e) + ". Click Connect to try again."); $("connect").hidden = false; });
+  return saving;
+}
+async function doSave() {
+  let merged = false;
+  for (const file of ["sessions.csv", "checkpoints.csv"]) {
+    const m = pendingPatches[file]; if (!m.size) continue;
+    const patches = new Map(m); m.clear();
+    const store = file === "sessions.csv" ? data.sessions : data.checks;
+    // If the file changed on disk since we last read it (e.g. edited by Claude Code), re-read it and re-apply our changes on top.
+    const cur = await readFile(file);
+    if (cur.file.lastModified !== lastMod[file]) {
+      const fresh = parseCSV(cur.text);
+      store.header = withCols(fresh.header, file === "sessions.csv" ? SESSION_COLS : CHECK_COLS);
+      store.records = fresh.records;
+      for (const [id, p] of patches) applyPatch(file, store, id, p);
+      merged = true;
+    }
+    await writeFile(file, toCSV(store.header, store.records));
+  }
+  const tm = new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  setSync("saved", "Saved to file at " + tm + (merged ? " (merged with changes made elsewhere)" : "") + ". Commit and push to update GitHub.");
+  if (merged) { validate(); showWeek(view); }
+}
+async function reloadIfChanged() {
+  if (mode !== "edit" || !dir) return;
+  if (pendingPatches["sessions.csv"].size || pendingPatches["checkpoints.csv"].size) return;
+  try {
+    let changed = false;
+    for (const f of ["sessions.csv", "checkpoints.csv"]) { const fh = await dir.getFileHandle(f); if ((await fh.getFile()).lastModified !== lastMod[f]) changed = true; }
+    if (changed) { await loadFromDir(); validate(); showWeek(view); setSync("saved", "Reloaded: the files were changed outside this page."); }
+  } catch (e) { /* handled on next save */ }
+}
+
+// ---------- loading ----------
+async function loadAll(getText) {
+  const [course, sessions, checks] = await Promise.all([getText("course.json"), getText("sessions.csv"), getText("checkpoints.csv")]);
+  try { data.course = JSON.parse(course); } catch (e) { throw new Error("course.json is not valid JSON (" + e.message + ")"); }
+  const s = parseCSV(sessions), c = parseCSV(checks);
+  data.sessions = { header: withCols(s.header, SESSION_COLS), records: s.records };
+  data.checks = { header: withCols(c.header, CHECK_COLS), records: c.records };
+}
+async function loadFromDir() {
+  await loadAll(async name => {
+    const r = await readFile(name);
+    if (name in lastMod) lastMod[name] = r.file.lastModified;
+    return r.text;
+  });
+}
+function start() {
+  $("app").hidden = false; $("connect-panel").hidden = true; $("unsupported-panel").hidden = true;
+  renderHeader(); validate(); showWeek(view == null ? currentWeek() : view);
+}
+async function connect() {
+  try {
+    const h = await window.showDirectoryPicker({ id: "cpp-tracker", mode: "readwrite" });
+    try { await h.getFileHandle("sessions.csv"); }
+    catch (_) { setSync("error", "That folder has no sessions.csv. Choose the tracker folder."); return; }
+    dir = h; mode = "edit";
+    await loadFromDir();
+    $("connect").hidden = true;
+    setSync("saved", "Connected. Changes save automatically.");
+    start();
+  } catch (e) {
+    if (e && e.name === "AbortError") return;
+    setSync("error", "Couldn’t open the folder: " + (e && e.message || e));
+  }
+}
+$("connect").addEventListener("click", connect);
+$("prev").addEventListener("click", () => { const l = weeksList(); showWeek(l[Math.max(0, l.indexOf(view) - 1)]); });
+$("next").addEventListener("click", () => { const l = weeksList(); showWeek(l[Math.min(l.length - 1, l.indexOf(view) + 1)]); });
+$("today").addEventListener("click", () => showWeek(currentWeek()));
+$("add").addEventListener("click", addExtra);
+window.addEventListener("focus", reloadIfChanged);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && mode === "edit") flush(); else reloadIfChanged(); });
+window.addEventListener("beforeunload", e => {
+  if (mode === "edit" && (pendingPatches["sessions.csv"].size || pendingPatches["checkpoints.csv"].size)) { flush(); e.preventDefault(); e.returnValue = ""; }
+});
+
+(async () => {
+  const canEdit = typeof window.showDirectoryPicker === "function";
+  const hosted = /\.github\.io$/i.test(location.hostname);
+  // Read-only: works when the page is served over http(s), e.g. GitHub Pages or a local server.
+  if (location.protocol !== "file:") {
+    try {
+      await loadAll(async name => { const r = await fetch(name, { cache: "no-store" }); if (!r.ok) throw new Error(name + ": " + r.status); return r.text(); });
+      mode = "read";
+      setSync("idle", hosted ? "Read-only view of the latest pushed progress." : "Read-only view. Connect the folder to edit.");
+      start();
+    } catch (e) { setSync("error", "Couldn’t load the tracker files: " + e.message); }
+  }
+  if (canEdit && !hosted) {
+    $("connect").hidden = false;
+    if (mode !== "read") { $("connect-panel").hidden = false; setSync("idle", "Not connected yet."); }
+  } else if (location.protocol === "file:") {
+    $("unsupported-panel").hidden = false; setSync("error", "This browser can’t open local files for editing.");
+  }
+})();
+</script>
+</body>
+</html>

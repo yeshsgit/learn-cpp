@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "title": "C++ Study Tracker",
+  "description": "A 26-week plan for learning C++ (C++20) from a Python background: LearnCpp.com, then A Tour of C++ (3rd ed.), then Effective Modern C++, with problem practice and projects.",
+  "types": [
+    "Learn",
+    "Practice",
+    "Build",
+    "Review"
+  ],
+  "weeks": [
+    {
+      "week": 1,
+      "milestones": [
+        "m01"
+      ],
+      "goal": "Get a working C++ toolchain and write your first programs",
+      "readings": "LearnCpp Ch 0–1",
+      "why": "Unlike Python, C++ is compiled before it runs. Setting up warnings and the C++20 standard now means the compiler catches mistakes for you for the rest of the course. Skim 0.1–0.3 and the Python-familiar parts of Ch 1; slow down on 1.6 (undefined behaviour)."
+    },
+    {
+      "week": 2,
+      "milestones": [
+        "m01"
+      ],
+      "goal": "Split programs across files, and learn to debug",
+      "readings": "LearnCpp Ch 2–3",
+      "why": "Headers and multi-file builds are how every real C++ project is organised. A debugger plus sanitizers will save you more time than any other skill. Ch 3 is short but high-value, so don't skip it."
+    },
+    {
+      "week": 3,
+      "milestones": [
+        "m02"
+      ],
+      "goal": "Understand C++'s fixed-size types and their limits",
+      "readings": "LearnCpp Ch 4–5",
+      "why": "Python integers never overflow and there's one string type. In C++, ints have fixed sizes, overflow is undefined behaviour, and there are two string types. This is the biggest early mindset shift, and overflow comes up in interviews."
+    },
+    {
+      "week": 4,
+      "milestones": [
+        "m02"
+      ],
+      "goal": "Learn operator pitfalls and how names and lifetimes work",
+      "readings": "LearnCpp Ch 6–7 (Ch O optional)",
+      "why": "Operators look like Python's but hide traps: integer division, side effects, float comparison. Ch 7 explains scope, linkage and duration: where a name is visible and how long an object lives. Ch O (bit manipulation) is optional; come back to it before interviews."
+    },
+    {
+      "week": 5,
+      "milestones": [
+        "m03"
+      ],
+      "goal": "Control flow, random numbers, and handling bad input",
+      "readings": "LearnCpp Ch 8–9",
+      "why": "Loops and branches are familiar from Python, so move quickly through 8.1–8.12. The new skills are random numbers and validating std::cin input. Problem practice starts this week."
+    },
+    {
+      "week": 6,
+      "milestones": [
+        "m03"
+      ],
+      "goal": "Type conversions and your first templates",
+      "readings": "LearnCpp Ch 10–11 (Ch F skim)",
+      "why": "C++ converts types silently in ways that cause real bugs; list initialisation and auto help you avoid them. Function templates are C++'s compile-time answer to Python's duck typing."
+    },
+    {
+      "week": 7,
+      "milestones": [
+        "m04"
+      ],
+      "goal": "References and pointers, part 1",
+      "readings": "LearnCpp Ch 12 (12.1–12.12)",
+      "why": "This is the core of C++ and the most common source of interview questions. Python hides it all behind object references. Go slowly, draw memory diagrams, and type out every example."
+    },
+    {
+      "week": 8,
+      "milestones": [
+        "m04"
+      ],
+      "goal": "Finish pointers, then define your own types",
+      "readings": "LearnCpp Ch 12 (end) and Ch 13",
+      "why": "In/out parameters and std::optional complete the pointers chapter. Enums and structs are your first user-defined types and the stepping stone to classes next week."
+    },
+    {
+      "week": 9,
+      "milestones": [
+        "m05"
+      ],
+      "goal": "Classes: bundling data with behaviour",
+      "readings": "LearnCpp Ch 14",
+      "why": "Classes let you enforce invariants, rules an object always keeps true. Python has classes too, but C++ adds access control, const member functions and constructors that matter for correctness."
+    },
+    {
+      "week": 10,
+      "milestones": [
+        "m05"
+      ],
+      "goal": "Destructors and std::vector",
+      "readings": "LearnCpp Ch 15–16",
+      "why": "Destructors are the first half of RAII, C++'s core idea for managing resources. std::vector is the container you'll use most, in projects and in nearly every interview problem."
+    },
+    {
+      "week": 11,
+      "milestones": [
+        "m05"
+      ],
+      "goal": "Fixed-size arrays and C-style arrays",
+      "readings": "LearnCpp Ch 17",
+      "why": "std::array is the modern choice, but C-style arrays, decay and pointer arithmetic show up in older code and interviews. This week completes the memory-and-classes foundation before you start building."
+    },
+    {
+      "week": 12,
+      "milestones": [
+        "m06"
+      ],
+      "goal": "Algorithms and manual heap memory",
+      "readings": "LearnCpp Ch 18–19",
+      "why": "Using new and delete by hand shows you exactly what smart pointers and containers protect you from. Saturday becomes build day, starting with your own Vector<T>."
+    },
+    {
+      "week": 13,
+      "milestones": [
+        "m06"
+      ],
+      "goal": "Stack vs heap, recursion and lambdas",
+      "readings": "LearnCpp Ch 20",
+      "why": "Knowing where objects live explains lifetimes. Lambdas make the <algorithm> library, and many LeetCode solutions, short and readable."
+    },
+    {
+      "week": 14,
+      "milestones": [
+        "m06"
+      ],
+      "goal": "Consolidation week",
+      "readings": "Revisit Ch 12 and 19; LearnCpp Appendix B",
+      "why": "Good courses leave a buffer before the hardest material. Revisit what didn't stick, get an overview of modern C++, and finish Vector<T> so it passes the checkpoint."
+    },
+    {
+      "week": 15,
+      "milestones": [
+        "m07"
+      ],
+      "goal": "Operator overloading",
+      "readings": "LearnCpp Ch 21 (21.1–21.9)",
+      "why": "Overloading lets your types behave like built-ins (+, ==, <<, []). It also sets up next week's key topic: copying objects correctly."
+    },
+    {
+      "week": 16,
+      "milestones": [
+        "m07"
+      ],
+      "goal": "Copying correctly, then rvalue references",
+      "readings": "LearnCpp Ch 21 (end) and 22.1–22.2",
+      "why": "Shallow vs. deep copying is where manual memory management goes wrong. Rvalue references open the door to move semantics, the defining feature of modern C++."
+    },
+    {
+      "week": 17,
+      "milestones": [
+        "m07"
+      ],
+      "goal": "Move semantics and smart pointers",
+      "readings": "LearnCpp Ch 22",
+      "why": "This is how modern C++ manages ownership without leaks, and one of the most-asked C++ interview topics. Add a move constructor to your Vector<T> to see it working."
+    },
+    {
+      "week": 18,
+      "milestones": [
+        "m08"
+      ],
+      "goal": "Object relationships and inheritance basics",
+      "readings": "LearnCpp Ch 23 and 24.1–24.4",
+      "why": "Composition vs. inheritance is a core design decision. Most good C++ prefers composition, and being able to say why is a design-interview talking point."
+    },
+    {
+      "week": 19,
+      "milestones": [
+        "m08"
+      ],
+      "goal": "Inheritance in depth, then polymorphism",
+      "readings": "LearnCpp Ch 24 (end) and 25.1–25.3",
+      "why": "Overriding behaviour in derived classes leads straight to virtual functions, which let one interface run different code at runtime."
+    },
+    {
+      "week": 20,
+      "milestones": [
+        "m08"
+      ],
+      "goal": "Virtual functions and the vtable",
+      "readings": "LearnCpp Ch 25",
+      "why": "How virtual dispatch works under the hood (vtables, slicing, virtual destructors) is a classic C++ interview question. Aim to explain it on a whiteboard."
+    },
+    {
+      "week": 21,
+      "milestones": [
+        "m09"
+      ],
+      "goal": "Class templates and exceptions",
+      "readings": "LearnCpp Ch 26 and 27.1–27.5",
+      "why": "Templates let you write generic containers like Vector<T> properly. Exceptions are how C++ reports errors, and why destructors must clean up during stack unwinding."
+    },
+    {
+      "week": 22,
+      "milestones": [
+        "m09"
+      ],
+      "goal": "Finish exceptions and I/O, and complete LearnCpp",
+      "readings": "LearnCpp Ch 27 (end) and Ch 28",
+      "why": "noexcept ties back to move semantics, and file I/O is what your projects need for saving data. Finishing LearnCpp completes the core course."
+    },
+    {
+      "week": 23,
+      "milestones": [
+        "m10"
+      ],
+      "goal": "A Tour of C++, part 1: the language as a whole",
+      "readings": "A Tour of C++ (3rd ed.) Ch 1–8",
+      "why": "A fast second pass, written by C++'s creator, ties together everything you've learned and shows the modern way to write it."
+    },
+    {
+      "week": 24,
+      "milestones": [
+        "m10"
+      ],
+      "goal": "A Tour of C++, part 2: the standard library",
+      "readings": "A Tour of C++ (3rd ed.) Ch 9–19",
+      "why": "Interview solutions and real projects lean on the standard library. Know what's available: containers, algorithms, ranges and utilities."
+    },
+    {
+      "week": 25,
+      "milestones": [
+        "m11",
+        "m12"
+      ],
+      "goal": "Effective Modern C++: type deduction and modern habits",
+      "readings": "Effective Modern C++ Items 1–13",
+      "why": "Each item fixes one specific pitfall. Read an item, then test its examples on Compiler Explorer. Items 14–17 are worth reading later."
+    },
+    {
+      "week": 26,
+      "milestones": [
+        "m11",
+        "m12"
+      ],
+      "goal": "Effective Modern C++: smart pointers and move semantics",
+      "readings": "Effective Modern C++ Items 18–30",
+      "why": "These items deepen the two most interview-relevant topics of the course. Carry on with the remaining items after week 26."
+    }
+  ]
+}

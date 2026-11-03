@@ -1,0 +1,13 @@
+id,topic,checkpoint,passed,passed_on
+m01,"Setup, basics, functions, debugging","Compile from the command line with warnings and sanitizers on, and step through code in a debugger",,
+m02,"Data types, constants, strings, operators, scope",Explain why int division and overflow behave differently from Python,,
+m03,"Control flow, type conversion, overloading, function templates",Solve easy LeetCode problems in C++ without looking up syntax,,
+m04,"References and pointers, enums, structs","Explain pass-by-value vs. pass-by-reference vs. pointers, and predict what a small program prints",,
+m05,"Classes (both chapters), std::vector, std::array","Write a class with a constructor, destructor, and const member functions",,
+m06,"Iterators and algorithms, dynamic memory, lambdas",Build your own Vector<T> with no leaks under AddressSanitizer,,
+m07,"Operator overloading, move semantics and smart pointers","Explain RAII and the rule of 0/3/5 out loud, as if in an interview",,
+m08,"Object relationships, inheritance, virtual functions",Explain vtables and why base classes need virtual destructors,,
+m09,"Class templates, exceptions, I/O",Finish LearnCpp,,
+m10,A Tour of C++,"Recognize modern features (concepts, ranges) when you see them",,
+m11,"Effective Modern C++, one item at a time","Explain the items you've read, testing examples on Compiler Explorer",,
+m12,Projects on GitHub,"One project on GitHub with CMake, tests and a README",,

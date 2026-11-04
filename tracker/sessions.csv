@@ -3,7 +3,7 @@ s001,1,02/11/2026,1,Learn,"LearnCpp 0.1–0.8: intro, compiler and linker, first
 s002,1,03/11/2026,1,Learn,"LearnCpp 0.9–0.13: build configurations, warning levels, choosing C++20",23:15,1,done,"Starting off from 0.3 and completed 0.8.
 Did the so called lab for tomorrow also.
 So tomo can catch up till 0.13."
-s003,1,04/11/2026,1,Practice,Lab: install a compiler + VS Code; compile hello world from the terminal with -std=c++20 -Wall -Wextra,,,planned,
+s003,1,04/11/2026,1,Practice,Lab: install a compiler + VS Code; compile hello world from the terminal with -std=c++20 -Wall -Wextra,19:15,,planned,
 s004,1,05/11/2026,1,Learn,"LearnCpp 1.1–1.6: statements, variables, iostream, uninitialised variables and undefined behaviour",,,planned,
 s005,1,07/11/2026,3,Learn,LearnCpp 1.7–1.11 + 1.x quiz. Lab: port a small Python script of yours to C++,,,planned,
 s006,1,08/11/2026,1,Review,Review: reread 1.6; write a short 'Python vs C++ so far' note,,,planned,

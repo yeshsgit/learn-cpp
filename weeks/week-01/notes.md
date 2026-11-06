@@ -101,4 +101,56 @@ yippee it works
 stdout:
 Your compiler is using C++23 (language standard code 202302L)
 
+# Thursday 05/11/2026
+
+## 1.1
+
+statement ~ basc a sentence
+
+end statement with semicolon ";"
+
+all c++ programs must have a function called main
+
+analysing hello world:
+
+`#include <iostream>` is for the preprocessor.
+tells it to use the iostream library
+
+then the main function is defined (required for all c++ programs) with int return type.
+w/o main function linking fails.
+
+0 indicates successful completion to os.
+
+## 1.2
+
+comments
+
+//
+
+/*
+*/
+
+what does code do?
+
+how does it do it?
+
+statement level - describe why not what.
+    a statement that is too complex is bad
+
+why was a certain implementation chosen?
+
+should be understandable to someone who doesn't know what the code does.
+
+## 1.3
+
+data - information that can be moved processed or stored
+
+data values in source code are called literals
+
+object - represents region in memory that can hold a value
+
+in c++ access memory through objects, using direct access is not generally good.
+
+variable - an object with a name (identifier)
+
 

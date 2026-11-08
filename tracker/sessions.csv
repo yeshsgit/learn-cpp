@@ -4,9 +4,9 @@ s002,1,03/11/2026,1,Learn,"LearnCpp 0.9–0.13: build configurations, warning le
 Did the so called lab for tomorrow also.
 So tomo can catch up till 0.13."
 s003,1,04/11/2026,1,Learn,Lab: install a compiler + VS Code; compile hello world from the terminal with -std=c++20 -Wall -Wextra,19:15,1,done,completed 0.9-0.13
-s004,1,05/11/2026,1,Learn,"LearnCpp 1.1–1.6: statements, variables, iostream, uninitialised variables and undefined behaviour",23:52,,planned,got till half way through 1.3.. might need to catch up tomorrow
-s005,1,07/11/2026,3,Learn,LearnCpp 1.7–1.11 + 1.x quiz. Lab: port a small Python script of yours to C++,,,planned,
-s006,1,08/11/2026,1,Review,Review: reread 1.6; write a short 'Python vs C++ so far' note,,,planned,
+s004,1,05/11/2026,1,Learn,"LearnCpp 1.1–1.6: statements, variables, iostream, uninitialised variables and undefined behaviour",23:52,1,done,got till half way through 1.3.. might need to catch up tomorrow
+s005,1,07/11/2026,3,Learn,LearnCpp 1.7–1.11 + 1.x quiz. Lab: port a small Python script of yours to C++,11:30,2.5,skipped,
+s006,1,08/11/2026,1,Review,Review: reread 1.6; write a short 'Python vs C++ so far' note,11:30,3,done,Continued from 1.3 got till end of 1.5... need to catch up next week.
 s007,2,09/11/2026,1,Learn,"LearnCpp 2.1–2.6: functions, return values, parameters, local scope (skim)",,,planned,
 s008,2,10/11/2026,1,Learn,"LearnCpp 2.7–2.10: forward declarations, multiple files, namespaces, preprocessor",,,planned,
 s009,2,11/11/2026,1,Practice,Lab: split a program into main.cpp + a header; compile both from the terminal,,,planned,
@@ -157,4 +157,3 @@ s153,26,28/04/2027,1,Practice,"Timed mock: 2 medium problems in 45 minutes, talk
 s154,26,29/04/2027,1,Learn,Effective Modern C++ Items 27–30: overloading and perfect forwarding,,,planned,
 s155,26,01/05/2027,3,Build,"Build: polish project #1 (README, tests, benchmarks) for your portfolio",,,planned,
 s156,26,02/05/2027,1,Practice,"C++ knowledge drill: explain RAII, move semantics and vtables out loud",,,planned,
-s157,1,06/11/2026,0,Learn,catch up - go through lessons 1.3 to 1.6,,,planned,

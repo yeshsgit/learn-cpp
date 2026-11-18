@@ -13,9 +13,9 @@ s009,2,11/11/2026,1,Practice,Lab: split a program into main.cpp + a header; comp
 s010,2,12/11/2026,1,Learn,"LearnCpp 2.11–2.13 + 2.x: header files, header guards, designing programs",,,skipped,
 s011,2,14/11/2026,3,Learn,"LearnCpp 3.1–3.10 + 3.x: debugging. Lab: step through a program with breakpoints; add -fsanitize=address,undefined",09:00,10,done,Caught up from sections 1.7 up till 2.10
 s012,2,15/11/2026,1,Review,Review: redo the 2.x quiz; note anything still unclear,,,planned,
-s013,3,16/11/2026,1,Learn,"LearnCpp 4.1–4.6: fundamental types, sizeof, signed/unsigned, fixed-width integers",,,planned,
-s014,3,17/11/2026,1,Learn,"LearnCpp 4.7–4.12 + 4.x: floating point, bool, chars, static_cast",,,planned,
-s015,3,18/11/2026,1,Practice,Lab: Ch 4 quiz; experiment with sizeof and INT_MAX + 1 under UBSan,,,planned,
+s013,3,16/11/2026,1,Learn,"LearnCpp 4.1–4.6: fundamental types, sizeof, signed/unsigned, fixed-width integers",21:00,1,done,catchup completed 2.10 - 2.12
+s014,3,17/11/2026,1,Learn,"LearnCpp 4.7–4.12 + 4.x: floating point, bool, chars, static_cast",20:00,1,done,catch up completed ch 2
+s015,3,18/11/2026,1,Practice,Lab: Ch 4 quiz; experiment with sizeof and INT_MAX + 1 under UBSan,19:00,1,done,catch up: completed till 3.10
 s016,3,19/11/2026,1,Learn,"LearnCpp 5.1–5.4: constants, literals, numeral systems, the as-if rule",,,planned,
 s017,3,21/11/2026,3,Learn,"LearnCpp 5.5–5.9 + 5.x: constexpr, std::string, std::string_view. Lab: string utilities (reverse, word count)",,,planned,
 s018,3,22/11/2026,1,Review,Review: reread 4.5 and 5.8; redo quiz questions you missed,,,planned,
